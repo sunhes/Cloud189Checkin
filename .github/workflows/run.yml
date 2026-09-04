@@ -16,17 +16,17 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 15
     steps:
       - name: 🔀 random delay 0-300 seconds
         if: github.event_name == 'schedule'
         run: sleep $((RANDOM % 301))
 
       - name: 🔌 Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🔨 Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 18
           cache: yarn
@@ -34,7 +34,7 @@ jobs:
       
       - name: 📹 Restore cached Cookie
         id: cache-cookie-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: .token
           key: cloud189-token-${{ hashFiles('.token/*.json') }}
@@ -69,12 +69,17 @@ jobs:
       - name: 🔑 Compute token hash
         if: always()
         run: |
-          NEW_HASH=$(find .token -name '*.json' -exec sha256sum {} \; 2>/dev/null | sha256sum | cut -d' ' -f1)
+          if ! find .token -type f -name '*.json' -print -quit 2>/dev/null | grep -q .; then
+            echo "No token files were created; skipping cache save"
+            exit 0
+          fi
+
+          NEW_HASH=$(find .token -type f -name '*.json' -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
           echo "TOKEN_HASH=${NEW_HASH}" >> $GITHUB_ENV
 
       - name: 📹 Save cached Cookie
         if: always() && env.TOKEN_HASH != ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: .token
           key: cloud189-token-${{ env.TOKEN_HASH }}
