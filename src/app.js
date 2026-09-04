@@ -55,6 +55,14 @@ const run = async (account, userSizeInfoMap, logger) => {
         logger.error(
           "天翼登录失败：请更新账号密码；如果网页登录要求验证，可改用 ssonCookie 登录"
         );
+      } else if (errorMessage.includes("图形验证码")) {
+        logger.error(
+          "天翼登录触发了图形验证码：请先在网页登录完成验证，再使用 ssonCookie 登录"
+        );
+      } else if (errorMessage.includes("设备ID不存在") || errorMessage.includes("二次设备校验")) {
+        logger.error(
+          "天翼登录需要二次设备校验：请在天翼云盘 App/账号安全中关闭设备锁，或改用 ssonCookie 登录"
+        );
       }
       throw e;
     } finally {

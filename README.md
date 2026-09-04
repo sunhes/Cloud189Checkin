@@ -44,7 +44,7 @@
 同样在 user 环境中添加变量，用户名环境变量TY_USERNAME_{index},账号密码环境变量TY_PASSWORD_{index},如添加第一个账号则是TY_USERNAME_1，第一个账号密码是TY_PASSWORD_1,第二个账号则是TY_USERNAME_2，第二个账号密码是TY_PASSWORD_2,以此类推。
 ![](https://cdn.jsdelivr.net/gh/wes-lin/Cloud189Checkin/image/account.png)
 
-如果网页登录要求设备校验或验证码，纯账号密码可能无法登录。此时可以在 `TY_ACCOUNTS` 中为账号增加 `ssonCookie`，例如：
+如果网页登录要求设备校验、图形验证码，纯账号密码可能无法登录。此时请先在天翼云盘网页登录并完成验证，再在 `TY_ACCOUNTS` 中为账号增加 `ssonCookie`，例如：
 
 ```json
 [{"userName":"你的天翼账号","password":"","ssonCookie":"网页登录后获取的 SSON 值"}]
