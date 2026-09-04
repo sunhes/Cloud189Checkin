@@ -11,6 +11,9 @@ const push = require("./push");
 const { log4js, cleanLogs, catLogs } = require("./logger");
 const tokenDir = ".token";
 
+const tokenPathFor = (userName) =>
+  `${tokenDir}/${encodeURIComponent(userName)}.json`;
+
 sdkLogger.configure({
   isDebugEnabled: process.env.CLOUD189_VERBOSE === "1",
 });
@@ -22,15 +25,17 @@ const doUserTask = async (cloudClient, logger) => {
   logger.info(`个人签到任务: 获得 ${netdiskBonus}M 空间`);
 };
 
-const run = async (userName, password, userSizeInfoMap, logger) => {
-  if (userName && password) {
+const run = async (account, userSizeInfoMap, logger) => {
+  const { userName, password, ssonCookie } = account;
+  if (userName && (password || ssonCookie)) {
     const before = Date.now();
     try {
       logger.log("开始执行");
       const cloudClient = new CloudClient({
         username: userName,
         password,
-        token: new FileTokenStore(`${tokenDir}/${userName}.json`),
+        ssonCookie,
+        token: new FileTokenStore(tokenPathFor(userName)),
       });
       const beforeUserSizeInfo = await cloudClient.getUserSizeInfo();
       userSizeInfoMap.set(userName, {
@@ -44,6 +49,12 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
         logger.log(`请求失败: ${e.response.statusCode}, ${e.response.body}`);
       } else {
         logger.error(e);
+      }
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      if (errorMessage === "账户名或密码错误") {
+        logger.error(
+          "天翼登录失败：请更新账号密码；如果网页登录要求验证，可改用 ssonCookie 登录"
+        );
       }
       throw e;
     } finally {
@@ -60,11 +71,11 @@ async function main() {
   const userSizeInfoMap = new Map();
   for (let index = 0; index < accounts.length; index++) {
     const account = accounts[index];
-    const { userName, password } = account;
+    const { userName } = account;
     const userNameInfo = mask(userName, 3, 7);
     const logger = log4js.getLogger(userName);
     logger.addContext("user", userNameInfo);
-    await run(userName, password, userSizeInfoMap, logger);
+    await run(account, userSizeInfoMap, logger);
   }
 
   //数据汇总

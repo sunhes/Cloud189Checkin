@@ -16,6 +16,7 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: user
     timeout-minutes: 15
     steps:
       - name: 🔀 random delay 0-300 seconds
@@ -46,6 +47,7 @@ jobs:
       - name: 🚀 Run
         env:
           TY_ACCOUNTS: ${{ secrets.TY_ACCOUNTS }}
+          TY_SSON_COOKIE: ${{ secrets.TY_SSON_COOKIE }}
           BARK_KEY: ${{ secrets.BARK_KEY }}
           CLOUD189_VERBOSE: ${{ vars.debug }}
         run: |
