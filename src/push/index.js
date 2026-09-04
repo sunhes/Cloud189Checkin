@@ -23,6 +23,7 @@ const pushServerChan = (title, desp) => {
     .post(`https://sctapi.ftqq.com/${serverChan.sendKey}.send`)
     .type("form")
     .send(data)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((res) => {
       logger.info("ServerChan推送成功");
     })
@@ -48,6 +49,7 @@ const pushTelegramBot = (title, desp) => {
     .post(`https://api.telegram.org/bot${telegramBot.botToken}/sendMessage`)
     .type("form")
     .send(data)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((res) => {
       if (res.body?.ok) {
         logger.info("TelegramBot推送成功");
@@ -76,6 +78,7 @@ const pushWecomBot = (title, desp) => {
       `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${wecomBot.key}`
     )
     .send(data)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((res) => {
       if (res.body?.errcode) {
         logger.error(`wecomBot推送失败:${JSON.stringify(res.body)}`);
@@ -102,6 +105,7 @@ const pushWxPusher = (title, desp) => {
   superagent
     .post("https://wxpusher.zjiecode.com/api/send/message")
     .send(data)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((res) => {
       if (res.body?.code === 1000) {
         logger.info("wxPusher推送成功");
@@ -129,6 +133,7 @@ const pushPlusPusher = (title, desp) => {
   superagent
     .post("http://www.pushplus.plus/send/")
     .send(data)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((res) => {
       if (res.body?.code === 200) {
         logger.info("pushPlus 推送成功");
@@ -148,6 +153,7 @@ const pushBark = (title, desp) => {
   const encodedUrl = `${bark.apiServer}/${bark.sendKey}/${encodeURIComponent(title)}/${encodeURIComponent(desp)}`;
   superagent
     .get(encodedUrl)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((response) => {
       // 请求成功
       logger.info("Bark推送成功");
@@ -170,6 +176,7 @@ const pushShowDoc = (title, desp) => {
   superagent
     .get(encodedUrl)
     .send(data)
+    .timeout({ response: 10000, deadline: 30000 })
     .then((response) => {
       // 请求成功
       logger.info("ShowDoc推送成功");
