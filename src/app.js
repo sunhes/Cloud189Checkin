@@ -45,10 +45,7 @@ const run = async (userName, password, userSizeInfoMap, logger) => {
       } else {
         logger.error(e);
       }
-      if (e.code === "ECONNRESET" || e.code === "ETIMEDOUT") {
-        logger.error("请求超时");
-        throw e;
-      }
+      throw e;
     } finally {
       logger.log(
         `执行完毕, 耗时 ${((Date.now() - before) / 1000).toFixed(2)} 秒`
